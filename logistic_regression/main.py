@@ -4,6 +4,7 @@ import numpy as np
 from sklearn import model_selection as model_sel
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
+import matplotlib.pyplot as plt
 from DataParser import *
 
 
@@ -72,7 +73,7 @@ def read_data(file_path):
 
 
 def check_my_classifier():
-    features,labels = read_data('./watermelon_data3.0a.txt')
+    features,labels = read_data('./watermelon_data_3a.txt')
     weights = logistic_regression(np.array(features), np.array(labels), 10000, 0.05)
     print "weights: %s" % str(weights.tolist())
 
@@ -92,7 +93,7 @@ def check_my_classifier():
 
 
 def check_sklearn_classifier():
-    features,labels = read_data('./watermelon_data3.0a.txt')
+    features,labels = read_data('./watermelon_data_3a.txt')
     features = np.array(features)
     labels = np.array(labels)
     X_train,X_test,y_train,y_test = model_sel.train_test_split(features, labels, test_size=0.5)

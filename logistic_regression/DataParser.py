@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding=utf-8
+import numpy as np
 
 
 class DataParser:
@@ -35,5 +36,21 @@ class DataParser:
                 row[self.column_names[i]] = arr[i]
             yield row
 
+    def load_data(self):
+        """
+        Read data and return numpy.array
+        """
+        data = []
+        for row in self.readrows():
+            tmp = []
+            for key in row:
+                if isinstance(row[key], float):
+                    tmp.append(float(row[key]))
+                elif isinstance(row[key], int):
+                    tmp.append(int(row[key]))
+                else:
+                    tmp.append(row[key])
+                data.append(tmp)
+        return np.array(data)
 
 
