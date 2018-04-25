@@ -43,14 +43,12 @@ class DataParser:
         data = []
         for row in self.readrows():
             tmp = []
-            for key in row:
-                if isinstance(row[key], float):
+            for key in self.column_names:
+                if key == 'density' or key == 'sugar_content':
                     tmp.append(float(row[key]))
-                elif isinstance(row[key], int):
-                    tmp.append(int(row[key]))
                 else:
-                    tmp.append(row[key])
-                data.append(tmp)
+                    tmp.append(int(row[key]))
+            data.append(tmp)
         return np.array(data)
 
 
