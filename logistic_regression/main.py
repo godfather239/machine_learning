@@ -5,6 +5,7 @@ from sklearn import model_selection as model_sel
 from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
+import matplotlib.pylab as pl
 from DataParser import *
 
 
@@ -91,6 +92,29 @@ def check_my_classifier():
     print(metrics.confusion_matrix(y_test, y_predict))
     print(metrics.classification_report(y_test, y_predict))
 
+    # show decision boundary
+    X = features
+    y = labels
+    f1 = plt.figure(1)
+    h = 0.001
+    x0_min, x0_max = X[:, 0].min()-0.1, X[:, 0].max()+0.1
+    x1_min, x1_max = X[:, 1].min()-0.1, X[:, 1].max()+0.1
+    x0, x1 = np.meshgrid(np.arange(x0_min, x0_max, h),
+                        np.arange(x1_min, x1_max, h))
+    z = predict(np.c_[x0.ravel(), x1.ravel()], weights)
+    z = np.array(z).reshape(x0.shape)
+    plt.contourf(x0, x1, z, cmap = pl.cm.Paired)
+    plt.title('watermelon_3a')
+    plt.xlabel('density')
+    plt.ylabel('ratio_sugar')
+    # Don't mess with the limits!
+    plt.scatter(X[y == 0,0], X[y == 0,1], marker = 'o', color = 'k', s=100, label = 'bad')
+    plt.scatter(X[y == 1,0], X[y == 1,1], marker = 'o', color = 'g', s=100, label = 'good')
+    plt.autoscale(False)
+    plt.show()
+
+
+
 
 def check_sklearn_classifier():
     features,labels = read_data('./watermelon_data_3a.txt')
@@ -109,4 +133,5 @@ def check_sklearn_classifier():
 
 
 if __name__ == "__main__":
-    check_sklearn_classifier()
+    # check_sklearn_classifier()
+    check_my_classifier()

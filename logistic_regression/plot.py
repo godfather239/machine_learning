@@ -27,7 +27,8 @@ def meshgrid():
     xx, yy = np.meshgrid(x, y, sparse=True)
     z = np.sin(xx**2 + yy**2) / (xx**2 + yy**2)
     h = plt.contourf(x,y,z)
+    plt.show()
 
 if __name__ == '__main__':
-    # scatter_sample()
-    meshgrid()
+    scatter_sample()
+    # meshgrid()
