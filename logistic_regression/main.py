@@ -32,6 +32,8 @@ def logistic_regression(features, labels, steps=10000, lr=1.0):
     weights = np.zeros(features.shape[1])
 
     ll_prev = 0
+    procs = []
+    procs.append(weights)
     # iteration
     for step in range(steps):
         scores = np.dot(features, weights)
@@ -39,14 +41,15 @@ def logistic_regression(features, labels, steps=10000, lr=1.0):
         output_errors = labels - predictions
         gradient = np.dot(features.T, output_errors)
         weights += gradient * lr
+        procs.append(weights.copy())
         ll = log_likelihood(features, labels, weights)
         # if step % 100 == 0:
         #     print ll
-        if abs(ll - ll_prev) <= 0.00001:
-            break
+        # if abs(ll - ll_prev) <= 0.00001:
+        #     break
         ll_prev = ll
 
-    return weights
+    return weights,np.array(procs)
 
 
 def predict(features, weights):
@@ -75,7 +78,7 @@ def read_data(file_path):
 
 def check_my_classifier():
     features,labels = read_data('./watermelon_data_3a.txt')
-    weights = logistic_regression(np.array(features), np.array(labels), 10000, 0.05)
+    weights,procs = logistic_regression(np.array(features), np.array(labels), 10000, 0.05)
     print "weights: %s" % str(weights.tolist())
 
     # predict
@@ -84,13 +87,14 @@ def check_my_classifier():
 
     features = np.array(features)
     labels = np.array(labels)
-    X_train,X_test,y_train,y_test = model_sel.train_test_split(features, labels, test_size=0.5)
+    X_train, X_test, y_train, y_test = model_sel.train_test_split(features, labels, test_size=0.2)
     print "y_train: %s" % str(y_train.tolist())
-    weights = logistic_regression(X_train, y_train)
-    y_predict = np.array(predict(X_test, weights))
-    # summarize the accuracy of fitting
-    print(metrics.confusion_matrix(y_test, y_predict))
-    print(metrics.classification_report(y_test, y_predict))
+    weights,procs = logistic_regression(X_train, y_train, 10000, 0.08)
+    print str(weights)
+    # y_predict = np.array(predict(X_test, weights))
+    # # summarize the accuracy of fitting
+    # print(metrics.confusion_matrix(y_test, y_predict))
+    # print(metrics.classification_report(y_test, y_predict))
 
     # show decision boundary
     X = features
@@ -111,6 +115,19 @@ def check_my_classifier():
     plt.scatter(X[y == 0,0], X[y == 0,1], marker = 'o', color = 'k', s=100, label = 'bad')
     plt.scatter(X[y == 1,0], X[y == 1,1], marker = 'o', color = 'g', s=100, label = 'good')
     plt.autoscale(False)
+
+    # show convergence trace
+    plt.figure(2)
+    x = np.arange(procs[:,0].shape[0])
+    plt.subplot(311)
+    plt.plot(x, procs[:,0])
+    plt.ylabel('b')
+    plt.subplot(312)
+    plt.plot(x, procs[:,1])
+    plt.ylabel('w_density')
+    plt.subplot(313)
+    plt.plot(x, procs[:,2])
+    plt.ylabel('w_sugar_content')
     plt.show()
 
 
