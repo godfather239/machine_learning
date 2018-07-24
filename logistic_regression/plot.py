@@ -29,6 +29,13 @@ def meshgrid():
     h = plt.contourf(x,y,z)
     plt.show()
 
+def simple_plog():
+    x = np.linspace(0, 100, 1000)
+    y = 1.25 - 0.25 * np.power(x/100, 2)
+    plt.plot(x, y)
+    plt.show()
+
 if __name__ == '__main__':
-    scatter_sample()
+    # scatter_sample()
     # meshgrid()
+    simple_plog()
