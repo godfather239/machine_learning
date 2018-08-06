@@ -25,10 +25,25 @@ class MyDecisionTreeClassifier:
 
     def generate_decision_tree(self, X, y):
         self.root = TreeNode()
-        self.generate_recursive(self.root, X, y)
+        X.astype(float, copy=False)
+        # feature preprocess
+        Z = self.calc_split_points(X)
+        self.generate_recursive(self.root, X, y, Z)
         pass
 
-    def generate_recursive(self, node, X, y):
+    def calc_split_points(self, X):
+        """
+        Calculate split points of each attribute
+        """
+        Z = np.zeros((X.shape[0]-1, X.shape[1]))
+        for col in range(X.shape[1]):
+            for i in range(X.shape[0] - 1):
+                Z[i, col] = (X[i, col] + X[i+1, col]) / 2.0
+            Z[:, col] = np.unique(Z[:, col])
+        return Z
+
+
+    def generate_recursive(self, node, X, y, Z):
         classes, cnts = np.unique(y)
         if len(classes) == 1:
             node.set_val(classes[0])
@@ -38,7 +53,7 @@ class MyDecisionTreeClassifier:
                 node.set_val(node.parent.val)
             return
         entropy_y = self.calc_entropy(cnts, y.shape[0])
-        best_attr = self.get_best_attr(X, y, entropy_y)
+        best_attr = self.get_best_attr(X, y, entropy_y, Z)
         attr_vals = np.unique(X[:, best_attr])
         for attr_val in attr_vals.tolist():
             sub_node = TreeNode(node)
@@ -47,16 +62,26 @@ class MyDecisionTreeClassifier:
             if len(sub_y) == 0:
                 sub_node.set_val(node.val)
             else:
-                self.generate_recursive(sub_node, sub_X, sub_y)
+                self.generate_recursive(sub_node, sub_X, sub_y, Z)
 
     def get_classes(self, y):
         return np.unique(y)
 
-    def get_best_attr(self, X, y, entropy_y):
+    def get_best_attr(self, X, y, entropy_y, Z):
         """
         Information Gain algorithm
+
+        for each attribute:
+            calculate info_gain
+            if info_gain > info_gain_max:
+                info_gain_max = info_gain
+                best_attr = curr_attr
         """
-        # calculate entropy of y
+        max_info_gain =
+        for col in range(X.shape[1]):
+
+
+
 
     @staticmethod
     def calc_entropy(sub_cnts, total_cnt):
