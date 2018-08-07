@@ -77,9 +77,16 @@ class MyDecisionTreeClassifier:
                 info_gain_max = info_gain
                 best_attr = curr_attr
         """
-        max_info_gain =
+        max_info_gain = float('-inf')
         for col in range(X.shape[1]):
+            info_gain = self.calc_info_gain(X[:, col], y, entropy_y, Z)
 
+
+    def calc_info_gain(self, data, y, entropy_y, Z):
+        labels = {}
+        for i in range(data.shape[0] - 1):
+            split_pt = (data[i] + data[i+1]) / 2.0
+            labels[split_pt] = 1 if split_pt not in labels else labels[split_pt] + 1
 
 
 
