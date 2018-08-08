@@ -19,14 +19,29 @@ class MyDecisionTreeClassifier:
         self.generate_decision_tree(X, y)
         return self
 
-    def predict(self, y):
+    def predict(self, X):
+        if self.root is None:
+            return None
+        X.astype(float, copy=False)
+        return self.predict_recursive(self.root, X)
         pass
+
+    @staticmethod
+    def predict_recursive(root, X):
+        if root.is_leaf():
+            return root.val
+        # find sub child
+        for node in root.children:
+            if X[root.attr] < node.split_pt:
+                MyDecisionTreeClassifier.predict_recursive(node, X)
+        return root.val
 
     def generate_decision_tree(self, X, y):
         self.root = TreeNode()
         X.astype(float, copy=False)
+        feature_names = range(X.shape[1])
         # Z = self.calc_split_points(X)
-        self.generate_recursive(self.root, X, y)
+        self.generate_recursive(self.root, X, y, feature_names)
         pass
 
     def calc_split_points(self, X):
@@ -40,7 +55,7 @@ class MyDecisionTreeClassifier:
             Z[:, col] = np.unique(Z[:, col])
         return Z
 
-    def generate_recursive(self, node, X, y):
+    def generate_recursive(self, node, X, y, feature_names):
         classes, cnts = np.unique(y)
         if len(classes) == 1:
             node.set_val(classes[0])
@@ -51,8 +66,9 @@ class MyDecisionTreeClassifier:
             return
         entropy_y = self.calc_entropy(cnts, y.shape[0])
         best_attr, split_pts = self.get_best_attr(X, y, entropy_y)
+        node.set_attr(feature_names[best_attr])
         for pt in split_pts:
-            sub_node = TreeNode(node)
+            sub_node = TreeNode(node, pt)
             node.add_child(sub_node)
             sub_X, sub_y, X, y = self.extract_sub_set(X, y, best_attr, pt)
             if len(sub_y) == 0:
@@ -64,7 +80,8 @@ class MyDecisionTreeClassifier:
                         target_class = classes[i]
                 sub_node.set_val(target_class)
             else:
-                self.generate_recursive(sub_node, sub_X, sub_y)
+                feature_names.remove(best_attr)
+                self.generate_recursive(sub_node, sub_X, sub_y, feature_names)
                 # attr_vals = np.unique(X[:, best_attr])
                 # for attr_val in attr_vals.tolist():
                 #     sub_node = TreeNode(node)
@@ -77,7 +94,7 @@ class MyDecisionTreeClassifier:
 
     def extract_sub_set(self, X, y, best_attr, split_pt):
         """
-        Extract sub samples set with attribute values on best_attr smaller than split_pt
+        Extract sub samples set with attribute values on best_attr small than split_pt
         """
         sub_X, sub_y, remain_X, remain_y = [], [], [], []
         for i in range(X.shape[0]):
@@ -164,13 +181,18 @@ class TreeNode:
     Multi-branches tree algorithm
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, split_pt=None):
         self.val = None
+        self.attr = None
+        self.split_pt = split_pt
         self.parent = parent
         self.children = []
 
     def set_val(self, val):
         self.val = val
+
+    def set_attr(self, attr):
+        self.attr = attr
 
     def is_leaf(self):
         return len(self.children) == 0
