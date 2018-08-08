@@ -6,7 +6,6 @@
 @Copyright:  Jumei Inc
 """
 import math
-import copy
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.datasets import load_iris
 from sklearn import model_selection
@@ -59,7 +58,6 @@ class MyDecisionTreeClassifier:
         feature_names = {}
         for i in range(X.shape[1]):
             feature_names[i] = i
-        # Z = self.calc_split_points(X)
         self.generate_recursive(self.root, X, y, feature_names)
 
     def calc_split_points(self, X):
@@ -98,18 +96,7 @@ class MyDecisionTreeClassifier:
                         target_class = classes[i]
                 sub_node.set_val(target_class)
             else:
-                # tmp = copy.copy(feature_names)
-                # tmp.remove(feature_names[best_attr])
                 self.generate_recursive(sub_node, sub_X, sub_y, feature_names)
-                # attr_vals = np.unique(X[:, best_attr])
-                # for attr_val in attr_vals.tolist():
-                #     sub_node = TreeNode(node)
-                #     node.add_child(sub_node)
-                #     sub_X, sub_y = self.get_sub_set(X, y, best_attr, attr_val)
-                #     if len(sub_y) == 0:
-                #         sub_node.set_val(node.val)
-                #     else:
-                #         self.generate_recursive(sub_node, sub_X, sub_y)
 
     def extract_sub_set(self, X, y, best_attr, split_pt):
         """
@@ -160,6 +147,8 @@ class MyDecisionTreeClassifier:
         for split_pt, cnt in labels.items():
             cumu_cnt += cnt
             labels[split_pt] = cumu_cnt
+        # add right margin point
+        labels[float('inf')] = cumu_cnt
         max_info_gain = float('-inf')
         for split_pt, cumu_cnt in labels.items():
             # Split data to 2 sets, one is with value smaller than split_pt, the other otherwise
@@ -219,10 +208,15 @@ class TreeNode:
         self.children.append(node)
 
 
+def evaluate(classifier, train_X, test_X, train_y, test_y):
+    classifier.fit(train_X, train_y)
+    res = classifier.predict(test_X)
+    print(metrics.classification_report(test_y, res))
+
+
 if __name__ == '__main__':
     X, y = load_iris(return_X_y=True)
     train_X, test_X, train_y, test_y = model_selection.train_test_split(X, y, test_size=0.3)
     classifier = MyDecisionTreeClassifier()
-    classifier.fit(train_X, train_y)
-    res = classifier.predict(test_X)
-    print(metrics.classification_report(test_y, res))
+    evaluate(classifier, train_X, test_X, train_y, test_y)
+    evaluate(DecisionTreeClassifier(), train_X, test_X, train_y, test_y)
