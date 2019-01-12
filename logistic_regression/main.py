@@ -79,6 +79,8 @@ def stochastic_gradient_descent(features, labels, steps, lr):
         score = np.dot(features[idx], weights)
         prediction = sigmoid(score)
         output_error = labels[idx] - prediction
+        if (step % 10) == 0:
+            print(output_error)
         gradient = features[idx] * output_error
         weights += gradient * lr
         # scores = np.dot(features, weights)
@@ -127,7 +129,7 @@ def check_my_classifier(method='bgd'):
 
     features = np.array(features)
     labels = np.array(labels)
-    X_train, X_test, y_train, y_test = model_sel.train_test_split(features, labels, test_size=0.2)
+    X_train, X_test, y_train, y_test = model_sel.train_test_split(features, labels, test_size=15.0/16)
     print "y_train: %s" % str(y_train.tolist())
     weights,procs = logistic_regression(X_train, y_train, 100000, 0.05, method)
     print str(weights)
